@@ -34,6 +34,17 @@ public class BloomFilterTest {
         return Paths.get(url.toURI());                  //todo: should I care about it?
     }
 
+    private void check(BloomFilter bloomFilter, String valueToCheck, boolean expectedResult) {
+        boolean checkResult = bloomFilter.check(valueToCheck);
+        assertThat(checkResult, is(expectedResult));
+
+        if (checkResult) {
+            LOG.info("value '{}' is probably there.", valueToCheck);
+        } else {
+            LOG.info("value '{}' is definitely not there.", valueToCheck);
+        }
+    }
+
     //--------------------------------- tests ---------------------------------
 
     @Before
@@ -53,11 +64,12 @@ public class BloomFilterTest {
         bloomFilter.getHashFunctions()
                 .forEach(hashFunction -> LOG.info("BloomFilter function: {}", hashFunction));
 
-        assertThat(bloomFilter.check("777"), is(false));
-        assertThat(bloomFilter.check("waffs"), is(true));
-        assertThat(bloomFilter.check("waffsd"), is(false));
-        assertThat(bloomFilter.check("unvizards"), is(true));
-        assertThat(bloomFilter.check("way's"), is(true));
+        check(bloomFilter, "777", false);
+        check(bloomFilter, "waffs", true);
+        check(bloomFilter, "waffsd", false);
+        check(bloomFilter, "unvizards", true);
+        check(bloomFilter, "way's", true);
+        check(bloomFilter, "crullers", true);
     }
 
     @Test
