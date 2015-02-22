@@ -31,7 +31,7 @@ public class BloomFilterTest {
     private Path getResource(String fileName) throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         URL url = classLoader.getResource(fileName);
-        return Paths.get(url.toURI());                  //todo: should I care about NPE here?
+        return Paths.get(url.toURI());                  //todo: should I care about it?
     }
 
     //--------------------------------- tests ---------------------------------

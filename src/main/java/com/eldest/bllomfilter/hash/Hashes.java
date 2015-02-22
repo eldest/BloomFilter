@@ -7,6 +7,7 @@ import com.google.common.hash.Hashing;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -35,38 +36,21 @@ public class Hashes {
 
     private static final int SEED = 1;
 
-    private static long murmur(String value) {
+    private static int murmur(String value) {
         return MurmurHash.hash(value.getBytes(), SEED);
     }
 
     //--------------------------------- fnv ---------------------------------
 
-    private static long fnv(String value, Supplier<FNV1> supplier) {
+    private static int fnv(String value, Supplier<FNV1> supplier) {
         FNV1 fnv = supplier.get();
         fnv.init(value);
-        return fnv.getHash();
+        return (int) fnv.getHash();
     }
 
     //--------------------------------- secured ---------------------------------
 
-//    //convert the byte to hex format method 1
-//    StringBuffer sb = new StringBuffer();
-//    for (int i = 0; i < byteData.length; i++) {
-//        sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-//    }
-//
-//    System.out.println("Hex format : " + sb.toString());
-//
-//    //convert the byte to hex format method 2
-//    StringBuffer hexString = new StringBuffer();
-//    for (int i=0;i<byteData.length;i++) {
-//        String hex=Integer.toHexString(0xff & byteData[i]);
-//        if(hex.length()==1) hexString.append('0');
-//        hexString.append(hex);
-//    }
-//    System.out.println("Hex format : " + hexString.toString());
-
-    private static long secured(String value, String algorithm) {
+    private static int secured(String value, String algorithm) {
         try {
             byte[] bytes = value.getBytes(ENCODING);
             MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
@@ -80,23 +64,38 @@ public class Hashes {
     //--------------------------------- HashFunction ---------------------------------
 
     public static class HashFunctionImpl implements HashFunction {
-        private Function<String, Long> function;
+        private Function<String, Integer> function;
 
-        HashFunctionImpl(Function<String, Long> function) {
+        HashFunctionImpl(Function<String, Integer> function) {
             this.function = function;
         }
 
         @Override
-        public long hash(String value) {
+        public int hash(String value) {
             return function.apply(value);
         }
 
         @Override
         public int index(String value, int size) {
-            return (int) Math.abs(hash(value) % size);
+            return Math.abs(hash(value) % size);
         }
 
+        @Override
+        public int hashCode() {
+            return Objects.hash(function);
+        }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            final HashFunctionImpl other = (HashFunctionImpl) obj;
+            return Objects.equals(this.function, other.function);
+        }
     }
 
     //--------------------------------- Google ---------------------------------
@@ -134,7 +133,7 @@ public class Hashes {
 
         //--------------------------------- f ---------------------------------
 
-        private static long getHashCode(com.google.common.hash.HashFunction hashFunction, String value) {
+        private static int getHashCode(com.google.common.hash.HashFunction hashFunction, String value) {
             HashCode hashCode = hashFunction.newHasher()
                     .putString(value, ENCODING)
                     .hash();
