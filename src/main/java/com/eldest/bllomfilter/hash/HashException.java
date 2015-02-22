@@ -1,5 +1,6 @@
 package com.eldest.bllomfilter.hash;
 
+/** Wraps an exception with an unchecked exception. */
 public class HashException extends RuntimeException {
 
     public HashException() {

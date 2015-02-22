@@ -55,7 +55,9 @@ public class BloomFilterTest {
 
         assertThat(bloomFilter.check("777"), is(false));
         assertThat(bloomFilter.check("waffs"), is(true));
+        assertThat(bloomFilter.check("waffsd"), is(false));
         assertThat(bloomFilter.check("unvizards"), is(true));
+        assertThat(bloomFilter.check("way's"), is(true));
     }
 
     @Test

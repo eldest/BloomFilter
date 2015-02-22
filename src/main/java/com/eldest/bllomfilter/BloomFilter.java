@@ -11,6 +11,10 @@ import java.util.stream.Collectors;
 import static com.eldest.bllomfilter.hash.Hashes.Google.*;
 
 /**
+ * Simple implementation of BloomFilter.
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Bloom_filter">Wiki</a>
+ * @see <a href="http://gsd.di.uminho.pt/members/cbm/ps/dbloom.pdf">Scalable Bloom Filters</a>
  * @see <a href="http://stackoverflow.com/questions/658439/how-many-hash-functions-does-my-bloom-filter-need">
  * how-many-hash-functions-does-my-bloom-filter-need</a>
  */
@@ -24,12 +28,14 @@ public class BloomFilter {
         this.hashFunctions = hashFunctions;
     }
 
-//    public BloomFilter(List<String> filterData, double falsePositiveRate, Set<HashFunction> hashFunctions) {
-//        this(getOptimalNumberOfBits(filterData.size(), falsePositiveRate), hashFunctions);
-//    }
-
     //--------------------------------- Builder ---------------------------------
 
+    /**
+     * <p>Uses to create new BloomFilter.</p>
+     * Has number of hash functions by default but you can set your own. <br>
+     * If filterData is set will try to calculate optimal bitMap size and number of hash functions. <br>
+     * {@code falsePositiveRate} can be set to change your acceptable false positive rate, 0.01 by default means 1%
+     */
     public static class Builder {
 
         private Set<HashFunction> hashFunctions = ImmutableSet.of(
@@ -96,6 +102,9 @@ public class BloomFilter {
         }
     }
 
+    /**
+     * Checks if element is probably exist
+     */
     public boolean check(String value) {
         for (HashFunction hashFunction : hashFunctions) {
             int index = hashFunction.index(value, bitArray.length);
@@ -111,6 +120,9 @@ public class BloomFilter {
         return hashFunctions;
     }
 
+    /**
+     * Returns bitMap current size
+     */
     public int size() {
         return bitArray.length;
     }
